@@ -1,0 +1,5 @@
+{
+  "name": "Finance Data Portal",
+  "description": "A secure finance dashboard with role-based access control, transaction management, and real-time summaries.",
+  "requestFramePermissions": []
+}
