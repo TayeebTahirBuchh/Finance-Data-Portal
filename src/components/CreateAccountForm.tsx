@@ -56,7 +56,9 @@ export default function CreateAccountForm({
       return;
     }
 
-    const minorUnits = Math.round(numericBalance * 100);
+    const decimalPlaces = currency === "JPY" ? 0 : 2;
+const multiplier = 10 ** decimalPlaces;
+const minorUnits = Math.round(numericBalance * multiplier);
 
     if (!Number.isSafeInteger(minorUnits)) {
       setError("Opening balance is too large.");
@@ -162,7 +164,7 @@ export default function CreateAccountForm({
           </label>
           <input
             type="number"
-            step="0.01"
+            step={currency === "JPY" ? "1" : "0.01"}
             value={balance}
             onChange={(e) => setBalance(e.target.value)}
             required
