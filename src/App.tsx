@@ -1,4 +1,5 @@
 
+
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
 import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
@@ -15,6 +16,7 @@ import {
 } from "./lib/workspace-api";
 import {
   getAccounts,
+  archiveAccount,
   type Account,
 } from "./lib/account-api";
 
@@ -25,6 +27,7 @@ export default function App() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [accountsLoading, setAccountsLoading] = useState(false);
+  const [archivingAccountId, setArchivingAccountId] = useState("");
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAccountForm, setShowAccountForm] = useState(false);
@@ -122,6 +125,35 @@ export default function App() {
     setAccounts((current) => [account, ...current]);
     setShowAccountForm(false);
     setError("");
+  }
+
+  async function handleArchiveAccount(account: Account) {
+    const confirmed = window.confirm(
+      `Archive "${account.name}"? It will no longer appear in your active accounts.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setArchivingAccountId(account.id);
+    setError("");
+
+    try {
+      await archiveAccount(activeWorkspaceId, account.id);
+
+      setAccounts((current) =>
+        current.filter((item) => item.id !== account.id)
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to archive this account."
+      );
+    } finally {
+      setArchivingAccountId("");
+    }
   }
 
   async function handleLogout() {
@@ -328,12 +360,14 @@ export default function App() {
                             <h3 className="font-medium">
                               {account.name}
                             </h3>
+
                             <p className="text-sm text-[#78716C] mt-1">
                               {account.type.replace("_", " ")}
                               {account.institution
                                 ? ` · ${account.institution}`
                                 : ""}
                             </p>
+
                             {account.lastFourDigits && (
                               <p className="text-xs text-[#78716C] mt-1">
                                 Ending in {account.lastFourDigits}
@@ -344,6 +378,18 @@ export default function App() {
                           <p className="font-semibold text-right">
                             {formatBalance(account)}
                           </p>
+                        </div>
+
+                        <div className="flex justify-end mt-3">
+                          <button
+                            onClick={() => void handleArchiveAccount(account)}
+                            disabled={archivingAccountId === account.id}
+                            className="text-sm text-red-600 font-medium disabled:opacity-50"
+                          >
+                            {archivingAccountId === account.id
+                              ? "Archiving..."
+                              : "Archive account"}
+                          </button>
                         </div>
                       </div>
                     ))}
