@@ -3,6 +3,10 @@ import Transaction from "../models/Transaction.js";
 interface ListTransactionsOptions {
   page?: number;
   limit?: number;
+  type?: "INCOME" | "EXPENSE";
+  accountId?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export async function listTransactions(
@@ -14,7 +18,29 @@ export async function listTransactions(
 
   const skip = (page - 1) * limit;
 
-  const filter = { workspaceId };
+  const filter: Record<string, unknown> = { workspaceId };
+
+  if (options.type) {
+    filter.type = options.type;
+  }
+
+  if (options.accountId) {
+    filter.accountId = options.accountId;
+  }
+
+  if (options.startDate || options.endDate) {
+    const dateFilter: Record<string, Date> = {};
+
+    if (options.startDate) {
+      dateFilter.$gte = options.startDate;
+    }
+
+    if (options.endDate) {
+      dateFilter.$lte = options.endDate;
+    }
+
+    filter.transactionDate = dateFilter;
+  }
 
   const [transactions, total] = await Promise.all([
     Transaction.find(filter)
