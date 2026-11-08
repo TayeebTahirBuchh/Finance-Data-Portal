@@ -3,6 +3,9 @@
 
 import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
+import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
+
+
 
 import {
   getWorkspaces,
@@ -25,6 +28,12 @@ router.post(
   requireAuth,
   requireWorkspaceAccess,
   createAccountController
+);
+router.get(
+  "/:workspaceId/accounts",
+  requireAuth,
+  requireWorkspaceAccess,
+  getWorkspaceAccountsController
 );
 router.get(
   "/:workspaceId",
