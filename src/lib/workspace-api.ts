@@ -33,6 +33,15 @@ interface WorkspaceResponse {
   error?: string;
 }
 
+interface CreateWorkspaceResponse {
+  message?: string;
+  workspace?: {
+    workspaceId: string;
+    name: string;
+  };
+  error?: string;
+}
+
 async function workspaceRequest<T>(
   path: string,
   options: RequestInit = {}
@@ -69,7 +78,7 @@ export async function getWorkspaces(): Promise<WorkspaceMembership[]> {
 export async function createWorkspace(
   input: CreateWorkspaceInput
 ): Promise<Workspace> {
-  const data = await workspaceRequest<WorkspaceResponse>(
+  const data = await workspaceRequest<CreateWorkspaceResponse>(
     "",
     {
       method: "POST",
@@ -77,11 +86,11 @@ export async function createWorkspace(
     }
   );
 
-  if (!data.workspace) {
-    throw new Error("Workspace was not returned by the server");
+  if (!data.workspace?.workspaceId) {
+    throw new Error("Workspace ID was not returned by the server");
   }
 
-  return data.workspace;
+  return getWorkspaceById(data.workspace.workspaceId);
 }
 
 export async function getWorkspaceById(
