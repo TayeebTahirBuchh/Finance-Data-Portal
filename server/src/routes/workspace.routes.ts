@@ -7,6 +7,7 @@ import { transactionListController } from "../controllers/transaction-list.contr
 import { createCategoryController } from "../controllers/create-category.controller.js";
 import { categoryListController } from "../controllers/category-list.controller.js";
 import { budgetListController } from "../controllers/budget-list.controller.js";
+import { archiveBudgetController } from "../controllers/archive-budget.controller.js";
 import { createBudgetController } from "../controllers/create-budget.controller.js";
 import { archiveCategoryController } from "../controllers/archive-category.controller.js";
 import { archiveAccountController } from "../controllers/archive-account.controller.js";
@@ -90,6 +91,12 @@ router.get(
   requireAuth,
   requireWorkspaceAccess,
   budgetListController
+);
+router.patch(
+  "/:workspaceId/budgets/:budgetId/archive",
+  requireAuth,
+  requireWorkspaceAccess,
+  archiveBudgetController
 );
 router.get(
   "/:workspaceId",
