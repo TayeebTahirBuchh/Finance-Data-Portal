@@ -4,6 +4,7 @@
 import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
 import { archiveAccountController } from "../controllers/archive-account.controller.js";
+import { createTransactionController } from "../controllers/create-transaction.controller.js";
 import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
 
 
@@ -41,6 +42,12 @@ router.get(
   requireAuth,
   requireWorkspaceAccess,
   getWorkspaceAccountsController
+);
+router.post(
+  "/:workspaceId/transactions",
+  requireAuth,
+  requireWorkspaceAccess,
+  createTransactionController
 );
 router.get(
   "/:workspaceId",
