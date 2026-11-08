@@ -1,3 +1,4 @@
+
 const API_BASE_URL = (
   import.meta.env.VITE_API_URL || ""
 ).replace(/\/$/, "");
@@ -21,6 +22,12 @@ export interface Account {
   institution?: string;
   lastFourDigits?: string;
   createdAt?: string;
+}
+
+export interface AccountBalance extends Account {
+  incomeMinorUnits: number;
+  expenseMinorUnits: number;
+  currentBalanceMinorUnits: number;
 }
 
 export interface CreateAccountInput {
@@ -78,6 +85,29 @@ export async function getAccounts(
   );
 
   return data.accounts ?? [];
+}
+
+export async function getAccountBalances(
+  workspaceId: string
+): Promise<AccountBalance[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/workspaces/${encodeURIComponent(
+      workspaceId
+    )}/account-balances`,
+    {
+      credentials: "include",
+    }
+  );
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error || "Unable to retrieve account balances"
+    );
+  }
+
+  return (data?.accounts ?? []) as AccountBalance[];
 }
 
 export async function createAccount(
