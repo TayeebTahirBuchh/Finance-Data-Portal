@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState, type FormEvent } from "react";
 import {
   createTransaction,
@@ -11,6 +9,10 @@ import {
   getCategories,
   type Category,
 } from "../lib/category-api";
+import {
+  getCurrencyDecimalPlaces,
+  toMinorUnits,
+} from "../lib/currency";
 
 interface CreateTransactionFormProps {
   workspaceId: string;
@@ -112,19 +114,24 @@ export default function CreateTransactionForm({
       return;
     }
 
-    const decimalPlaces =
-      selectedAccount.currency === "JPY" ? 0 : 2;
+    let amountMinorUnits: number;
 
-    const multiplier = 10 ** decimalPlaces;
-    const amountMinorUnits = Math.round(
-      numericAmount * multiplier
-    );
+    try {
+      amountMinorUnits = toMinorUnits(
+        numericAmount,
+        selectedAccount.currency
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Enter a valid transaction amount."
+      );
+      return;
+    }
 
-    if (
-      !Number.isSafeInteger(amountMinorUnits) ||
-      amountMinorUnits <= 0
-    ) {
-      setError("The transaction amount is too large or invalid.");
+    if (amountMinorUnits <= 0) {
+      setError("Enter an amount greater than zero.");
       return;
     }
 
@@ -234,8 +241,14 @@ export default function CreateTransactionForm({
             type="number"
             min="0"
             step={
-              selectedAccount?.currency === "JPY"
-                ? "1"
+              selectedAccount
+                ? String(
+                    1 /
+                      10 **
+                        getCurrencyDecimalPlaces(
+                          selectedAccount.currency
+                        )
+                  )
                 : "0.01"
             }
             value={amount}
@@ -355,3 +368,4 @@ export default function CreateTransactionForm({
     </section>
   );
 }
+
