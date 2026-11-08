@@ -1,8 +1,14 @@
 
+
 import type { Request, Response } from "express";
 
 import { registerSchema } from "../validators/auth.validator.js";
 import { registerUser } from "../services/auth.service.js";
+
+interface RegistrationResult {
+  userId: string;
+  workspaceId: string;
+}
 
 export async function register(
   req: Request,
@@ -19,7 +25,9 @@ export async function register(
   }
 
   try {
-    const result = await registerUser(validation.data);
+    const result: RegistrationResult = await registerUser(
+      validation.data
+    );
 
     res.status(201).json({
       message: "Account created successfully",
