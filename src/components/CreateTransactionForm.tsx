@@ -1,4 +1,5 @@
 
+
 import { useEffect, useState, type FormEvent } from "react";
 import {
   createTransaction,
@@ -6,12 +7,10 @@ import {
   type TransactionType,
 } from "../lib/transaction-api";
 import type { Account } from "../lib/account-api";
-
-interface Category {
-  id: string;
-  name: string;
-  type: TransactionType;
-}
+import {
+  getCategories,
+  type Category,
+} from "../lib/category-api";
 
 interface CreateTransactionFormProps {
   workspaceId: string;
@@ -19,10 +18,6 @@ interface CreateTransactionFormProps {
   onCreated: (transaction: Transaction) => void;
   onCancel: () => void;
 }
-
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || ""
-).replace(/\/$/, "");
 
 function getLocalDate() {
   const date = new Date();
@@ -70,25 +65,10 @@ export default function CreateTransactionForm({
       setCategoriesLoading(true);
 
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/workspaces/${encodeURIComponent(
-            workspaceId
-          )}/categories`,
-          {
-            credentials: "include",
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data?.error || "Unable to load categories."
-          );
-        }
+        const result = await getCategories(workspaceId);
 
         if (!cancelled) {
-          setCategories(data.categories ?? []);
+          setCategories(result);
         }
       } catch (err) {
         if (!cancelled) {
@@ -295,6 +275,13 @@ export default function CreateTransactionForm({
               </option>
             ))}
           </select>
+
+          {!categoriesLoading &&
+            filteredCategories.length === 0 && (
+              <p className="text-xs text-[#78716C] mt-1">
+                No categories available for this transaction type.
+              </p>
+            )}
         </div>
 
         <div>
