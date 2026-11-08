@@ -35,3 +35,31 @@ export function getCurrencyDecimals(currency: string): number {
 export function getCurrencyMultiplier(currency: string): number {
   return 10 ** getCurrencyDecimals(currency);
 }
+export function toMinorUnits(
+  amount: number,
+  currency: string
+): number {
+  if (!Number.isFinite(amount)) {
+    throw new Error("Invalid monetary amount");
+  }
+
+  const multiplier = getCurrencyMultiplier(currency);
+  const minorUnits = Math.round(amount * multiplier);
+
+  if (!Number.isSafeInteger(minorUnits)) {
+    throw new Error("Monetary amount is too large");
+  }
+
+  return minorUnits;
+}
+
+export function fromMinorUnits(
+  minorUnits: number,
+  currency: string
+): number {
+  if (!Number.isSafeInteger(minorUnits)) {
+    throw new Error("Invalid minor unit amount");
+  }
+
+  return minorUnits / getCurrencyMultiplier(currency);
+}
