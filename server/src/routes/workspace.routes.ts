@@ -5,6 +5,7 @@ import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
 import { transactionListController } from "../controllers/transaction-list.controller.js";
 import { createCategoryController } from "../controllers/create-category.controller.js";
+import { categoryListController } from "../controllers/category-list.controller.js";
 import { archiveAccountController } from "../controllers/archive-account.controller.js";
 import { createTransactionController } from "../controllers/create-transaction.controller.js";
 import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
@@ -62,6 +63,12 @@ router.post(
   requireAuth,
   requireWorkspaceAccess,
   createCategoryController
+);
+router.get(
+  "/:workspaceId/categories",
+  requireAuth,
+  requireWorkspaceAccess,
+  categoryListController
 );
 router.get(
   "/:workspaceId",
