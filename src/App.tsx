@@ -1,4 +1,5 @@
 
+
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
 import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
@@ -8,6 +9,7 @@ import CategoryManager from "./components/CategoryManager";
 import DashboardSummary from "./components/DashboardSummary";
 import BudgetManager from "./components/BudgetManager";
 import SavingsGoalManager from "./components/SavingsGoalManager";
+import FinancialReports from "./components/FinancialReports";
 
 import {
   getCurrentUser,
@@ -418,6 +420,10 @@ export default function App() {
                 />
 
                 <SavingsGoalManager
+                  workspaceId={activeWorkspaceId}
+                />
+
+                <FinancialReports
                   workspaceId={activeWorkspaceId}
                 />
               </>
