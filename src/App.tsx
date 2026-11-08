@@ -1,7 +1,4 @@
 
-
-
-
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
 import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
@@ -23,8 +20,10 @@ import {
 
 import {
   getAccounts,
+  getAccountBalances,
   archiveAccount,
   type Account,
+  type AccountBalance,
 } from "./lib/account-api";
 
 import {
@@ -38,6 +37,7 @@ export default function App() {
   const [workspaces, setWorkspaces] = useState<WorkspaceMembership[]>([]);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState("");
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -79,6 +79,7 @@ export default function App() {
       setUser(null);
       setWorkspaces([]);
       setAccounts([]);
+      setAccountBalances([]);
       setTransactions([]);
       setActiveWorkspaceId("");
     } finally {
@@ -93,6 +94,7 @@ export default function App() {
   useEffect(() => {
     if (!activeWorkspaceId) {
       setAccounts([]);
+      setAccountBalances([]);
       setTransactions([]);
       return;
     }
@@ -105,17 +107,22 @@ export default function App() {
       setError("");
 
       try {
-        const [accountResult, transactionResult] =
-          await Promise.all([
-            getAccounts(activeWorkspaceId),
-            getTransactions(activeWorkspaceId, {
-              page: 1,
-              limit: 20,
-            }),
-          ]);
+        const [
+          accountResult,
+          balanceResult,
+          transactionResult,
+        ] = await Promise.all([
+          getAccounts(activeWorkspaceId),
+          getAccountBalances(activeWorkspaceId),
+          getTransactions(activeWorkspaceId, {
+            page: 1,
+            limit: 20,
+          }),
+        ]);
 
         if (!cancelled) {
           setAccounts(accountResult);
+          setAccountBalances(balanceResult);
           setTransactions(transactionResult.transactions);
         }
       } catch (err) {
@@ -145,14 +152,18 @@ export default function App() {
     if (!activeWorkspaceId) return;
 
     try {
-      const result = await getTransactions(activeWorkspaceId, {
-        page: 1,
-        limit: 20,
-      });
+      const [transactionResult, balanceResult] = await Promise.all([
+        getTransactions(activeWorkspaceId, {
+          page: 1,
+          limit: 20,
+        }),
+        getAccountBalances(activeWorkspaceId),
+      ]);
 
-      setTransactions(result.transactions);
+      setTransactions(transactionResult.transactions);
+      setAccountBalances(balanceResult);
     } catch {
-      setError("Transaction saved, but the history could not refresh.");
+      setError("Transaction saved, but the dashboard could not refresh.");
     }
   }
 
@@ -170,10 +181,17 @@ export default function App() {
     }
   }
 
-  function handleAccountCreated(account: Account) {
+  async function handleAccountCreated(account: Account) {
     setAccounts((current) => [account, ...current]);
     setShowAccountForm(false);
     setError("");
+
+    try {
+      const balances = await getAccountBalances(activeWorkspaceId);
+      setAccountBalances(balances);
+    } catch {
+      setError("Account created, but balances could not be refreshed.");
+    }
   }
 
   async function handleTransactionCreated() {
@@ -198,6 +216,9 @@ export default function App() {
       setAccounts((current) =>
         current.filter((item) => item.id !== account.id)
       );
+
+      const balances = await getAccountBalances(activeWorkspaceId);
+      setAccountBalances(balances);
     } catch (err) {
       setError(
         err instanceof Error
@@ -220,6 +241,7 @@ export default function App() {
     setUser(null);
     setWorkspaces([]);
     setAccounts([]);
+    setAccountBalances([]);
     setTransactions([]);
     setActiveWorkspaceId("");
     setShowCreateForm(false);
@@ -426,56 +448,102 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {accounts.map((account) => (
-                        <div
-                          key={account.id}
-                          className="border border-[#E7E5E4] rounded-xl p-4"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <h3 className="font-medium">
-                                {account.name}
-                              </h3>
+                      {accounts.map((account) => {
+                        const balance = accountBalances.find(
+                          (item) => item.id === account.id
+                        );
 
-                              <p className="text-sm text-[#78716C] mt-1">
-                                {account.type.replace("_", " ")}
-                                {account.institution
-                                  ? ` · ${account.institution}`
-                                  : ""}
-                              </p>
+                        return (
+                          <div
+                            key={account.id}
+                            className="border border-[#E7E5E4] rounded-xl p-4"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <h3 className="font-medium">
+                                  {account.name}
+                                </h3>
 
-                              {account.lastFourDigits && (
-                                <p className="text-xs text-[#78716C] mt-1">
-                                  Ending in {account.lastFourDigits}
+                                <p className="text-sm text-[#78716C] mt-1">
+                                  {account.type.replace("_", " ")}
+                                  {account.institution
+                                    ? ` · ${account.institution}`
+                                    : ""}
                                 </p>
-                              )}
+
+                                {account.lastFourDigits && (
+                                  <p className="text-xs text-[#78716C] mt-1">
+                                    Ending in {account.lastFourDigits}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="text-right">
+                                <p className="text-xs text-[#78716C]">
+                                  Current balance
+                                </p>
+                                <p className="font-semibold">
+                                  {formatAmount(
+                                    balance?.currentBalanceMinorUnits ??
+                                      account.openingBalanceMinorUnits,
+                                    account.currency
+                                  )}
+                                </p>
+                                <p className="text-xs text-[#78716C] mt-1">
+                                  Opening:{" "}
+                                  {formatAmount(
+                                    account.openingBalanceMinorUnits,
+                                    account.currency
+                                  )}
+                                </p>
+                              </div>
                             </div>
 
-                            <p className="font-semibold text-right">
-                              {formatAmount(
-                                account.openingBalanceMinorUnits,
-                                account.currency
-                              )}
-                            </p>
-                          </div>
+                            {balance && (
+                              <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-[#E7E5E4]">
+                                <div>
+                                  <p className="text-xs text-[#78716C]">
+                                    Total income
+                                  </p>
+                                  <p className="text-sm font-medium text-green-700">
+                                    {formatAmount(
+                                      balance.incomeMinorUnits,
+                                      account.currency
+                                    )}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-[#78716C]">
+                                    Total expenses
+                                  </p>
+                                  <p className="text-sm font-medium text-red-600">
+                                    {formatAmount(
+                                      balance.expenseMinorUnits,
+                                      account.currency
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
 
-                          <div className="flex justify-end mt-3">
-                            <button
-                              onClick={() =>
-                                void handleArchiveAccount(account)
-                              }
-                              disabled={
-                                archivingAccountId === account.id
-                              }
-                              className="text-sm text-red-600 font-medium disabled:opacity-50"
-                            >
-                              {archivingAccountId === account.id
-                                ? "Archiving..."
-                                : "Archive account"}
-                            </button>
+                            <div className="flex justify-end mt-3">
+                              <button
+                                onClick={() =>
+                                  void handleArchiveAccount(account)
+                                }
+                                disabled={
+                                  archivingAccountId === account.id
+                                }
+                                className="text-sm text-red-600 font-medium disabled:opacity-50"
+                              >
+                                {archivingAccountId === account.id
+                                  ? "Archiving..."
+                                  : "Archive account"}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </section>
