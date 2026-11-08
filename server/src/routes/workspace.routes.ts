@@ -1,7 +1,6 @@
-
+import { Router } from "express";
 
 import { updateBudgetController } from "../controllers/update-budget.controller.js";
-import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
 import { transactionListController } from "../controllers/transaction-list.controller.js";
 import { createCategoryController } from "../controllers/create-category.controller.js";
@@ -15,7 +14,13 @@ import { archiveAccountController } from "../controllers/archive-account.control
 import { createTransactionController } from "../controllers/create-transaction.controller.js";
 import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
 
-
+import {
+  archiveSavingsGoalController,
+  contributeToSavingsGoalController,
+  createSavingsGoalController,
+  getSavingsGoalsController,
+  updateSavingsGoalController,
+} from "../controllers/savings-goal.controller.js";
 
 import {
   getWorkspaces,
@@ -39,78 +44,126 @@ router.post(
   requireWorkspaceAccess,
   createAccountController
 );
+
 router.patch(
   "/:workspaceId/accounts/:accountId/archive",
   requireAuth,
   requireWorkspaceAccess,
   archiveAccountController
 );
+
 router.get(
   "/:workspaceId/accounts",
   requireAuth,
   requireWorkspaceAccess,
   getWorkspaceAccountsController
 );
+
 router.get(
   "/:workspaceId/account-balances",
   requireAuth,
   requireWorkspaceAccess,
   accountBalanceController
 );
+
 router.post(
   "/:workspaceId/transactions",
   requireAuth,
   requireWorkspaceAccess,
   createTransactionController
 );
+
 router.get(
   "/:workspaceId/transactions",
   requireAuth,
   requireWorkspaceAccess,
   transactionListController
 );
+
 router.post(
   "/:workspaceId/categories",
   requireAuth,
   requireWorkspaceAccess,
   createCategoryController
 );
+
 router.get(
   "/:workspaceId/categories",
   requireAuth,
   requireWorkspaceAccess,
   categoryListController
 );
+
 router.patch(
   "/:workspaceId/categories/:categoryId/archive",
   requireAuth,
   requireWorkspaceAccess,
   archiveCategoryController
 );
+
 router.post(
   "/:workspaceId/budgets",
   requireAuth,
   requireWorkspaceAccess,
   createBudgetController
 );
+
 router.get(
   "/:workspaceId/budgets",
   requireAuth,
   requireWorkspaceAccess,
   budgetListController
 );
+
 router.patch(
   "/:workspaceId/budgets/:budgetId/archive",
   requireAuth,
   requireWorkspaceAccess,
   archiveBudgetController
 );
+
 router.patch(
   "/:workspaceId/budgets/:budgetId",
   requireAuth,
   requireWorkspaceAccess,
   updateBudgetController
 );
+
+router.post(
+  "/:workspaceId/savings-goals",
+  requireAuth,
+  requireWorkspaceAccess,
+  createSavingsGoalController
+);
+
+router.get(
+  "/:workspaceId/savings-goals",
+  requireAuth,
+  requireWorkspaceAccess,
+  getSavingsGoalsController
+);
+
+router.patch(
+  "/:workspaceId/savings-goals/:goalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  updateSavingsGoalController
+);
+
+router.post(
+  "/:workspaceId/savings-goals/:goalId/contributions",
+  requireAuth,
+  requireWorkspaceAccess,
+  contributeToSavingsGoalController
+);
+
+router.patch(
+  "/:workspaceId/savings-goals/:goalId/archive",
+  requireAuth,
+  requireWorkspaceAccess,
+  archiveSavingsGoalController
+);
+
 router.get(
   "/:workspaceId",
   requireAuth,
@@ -119,3 +172,4 @@ router.get(
 );
 
 export default router;
+
