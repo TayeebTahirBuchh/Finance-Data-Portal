@@ -1,4 +1,5 @@
 
+
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
@@ -8,7 +9,14 @@ import Membership from "../models/Membership.js";
 
 import type { RegisterInput } from "../validators/auth.validator.js";
 
-export async function registerUser(input: RegisterInput) {
+interface RegistrationResult {
+  userId: string;
+  workspaceId: string;
+}
+
+export async function registerUser(
+  input: RegisterInput
+): Promise<RegistrationResult> {
   const existingUser = await User.findOne({
     email: input.email,
   }).lean();
@@ -18,16 +26,12 @@ export async function registerUser(input: RegisterInput) {
   }
 
   const passwordHash = await bcrypt.hash(input.password, 12);
-
-  const session = await mongoose.startSession();
+  const dbSession = await mongoose.startSession();
 
   try {
-    let result: {
-      userId: string;
-      workspaceId: string;
-    } | null = null;
+    let result: RegistrationResult | undefined;
 
-    await session.withTransaction(async () => {
+    await dbSession.withTransaction(async () => {
       const [user] = await User.create(
         [
           {
@@ -36,8 +40,12 @@ export async function registerUser(input: RegisterInput) {
             passwordHash,
           },
         ],
-        { session }
+        { session: dbSession }
       );
+
+      if (!user) {
+        throw new Error("Failed to create user");
+      }
 
       const [workspace] = await Workspace.create(
         [
@@ -49,8 +57,12 @@ export async function registerUser(input: RegisterInput) {
             timezone: "Asia/Kolkata",
           },
         ],
-        { session }
+        { session: dbSession }
       );
+
+      if (!workspace) {
+        throw new Error("Failed to create workspace");
+      }
 
       await Membership.create(
         [
@@ -61,7 +73,7 @@ export async function registerUser(input: RegisterInput) {
             status: "ACTIVE",
           },
         ],
-        { session }
+        { session: dbSession }
       );
 
       result = {
@@ -76,6 +88,6 @@ export async function registerUser(input: RegisterInput) {
 
     return result;
   } finally {
-    await session.endSession();
+    await dbSession.endSession();
   }
 }
