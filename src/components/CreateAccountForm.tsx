@@ -4,6 +4,10 @@ import {
   type Account,
   type AccountType,
 } from "../lib/account-api";
+import {
+  getCurrencyDecimalPlaces,
+  toMinorUnits,
+} from "../lib/currency";
 
 interface CreateAccountFormProps {
   workspaceId: string;
@@ -56,12 +60,16 @@ export default function CreateAccountForm({
       return;
     }
 
-    const decimalPlaces = currency === "JPY" ? 0 : 2;
-const multiplier = 10 ** decimalPlaces;
-const minorUnits = Math.round(numericBalance * multiplier);
+    let minorUnits: number;
 
-    if (!Number.isSafeInteger(minorUnits)) {
-      setError("Opening balance is too large.");
+    try {
+      minorUnits = toMinorUnits(numericBalance, currency);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Enter a valid opening balance."
+      );
       return;
     }
 
@@ -164,7 +172,7 @@ const minorUnits = Math.round(numericBalance * multiplier);
           </label>
           <input
             type="number"
-            step={currency === "JPY" ? "1" : "0.01"}
+            step={String(1 / 10 ** getCurrencyDecimalPlaces(currency))}
             value={balance}
             onChange={(e) => setBalance(e.target.value)}
             required
