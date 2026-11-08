@@ -7,6 +7,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 
 import authRoutes from "./routes/auth.routes.js";
+import workspaceRoutes from "./routes/workspace.routes.js";
 
 const app = express();
 
@@ -85,5 +86,6 @@ app.use((_req, res) => {
     error: "Route not found",
   });
 });
+app.use("/api/workspaces", workspaceRoutes);
 
 export default app;
