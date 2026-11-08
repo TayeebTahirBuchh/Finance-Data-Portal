@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import Transaction from "../models/Transaction.js";
 import Category from "../models/Category.js";
 
@@ -10,7 +11,11 @@ export async function getFinancialReport(
   workspaceId: string,
   options: FinancialReportOptions = {}
 ) {
-  const match: Record<string, unknown> = { workspaceId };
+  const workspaceObjectId = new Types.ObjectId(workspaceId);
+
+  const match: Record<string, unknown> = {
+    workspaceId: workspaceObjectId,
+  };
 
   if (options.startDate || options.endDate) {
     const dateFilter: Record<string, Date> = {};
@@ -84,7 +89,7 @@ export async function getFinancialReport(
 
   const categories = await Category.find({
     _id: { $in: categoryIds },
-    workspaceId,
+    workspaceId: workspaceObjectId,
   })
     .select("_id name type")
     .lean();
