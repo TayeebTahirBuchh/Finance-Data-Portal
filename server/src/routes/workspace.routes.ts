@@ -2,6 +2,7 @@
 
 
 import { Router } from "express";
+import { createAccountController } from "../controllers/create-account.controller.js";
 
 import {
   getWorkspaces,
@@ -19,6 +20,12 @@ router.get("/", requireAuth, getWorkspaces);
 
 router.post("/", requireAuth, createWorkspaceController);
 
+router.post(
+  "/:workspaceId/accounts",
+  requireAuth,
+  requireWorkspaceAccess,
+  createAccountController
+);
 router.get(
   "/:workspaceId",
   requireAuth,
