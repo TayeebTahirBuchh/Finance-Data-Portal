@@ -1,5 +1,30 @@
 
+
 import { z } from "zod";
+
+const SUPPORTED_CURRENCIES = [
+  "INR",
+  "USD",
+  "EUR",
+  "GBP",
+  "AED",
+  "SAR",
+  "PKR",
+  "BDT",
+  "LKR",
+  "NPR",
+  "CAD",
+  "AUD",
+  "NZD",
+  "SGD",
+  "JPY",
+  "CNY",
+  "CHF",
+  "HKD",
+  "MYR",
+  "ZAR",
+  "TRY",
+] as const;
 
 export const createWorkspaceSchema = z.object({
   name: z
@@ -14,7 +39,7 @@ export const createWorkspaceSchema = z.object({
     .string()
     .trim()
     .toUpperCase()
-    .regex(/^[A-Z]{3}$/, "Currency must be a valid 3-letter code"),
+    .pipe(z.enum(SUPPORTED_CURRENCIES)),
 
   timezone: z
     .string()
