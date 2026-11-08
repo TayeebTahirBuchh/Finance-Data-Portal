@@ -27,9 +27,9 @@ const userSchema = new Schema(
     },
 
     emailVerified: {
-      type: Boolean,
-      default: false,
-    },
+  type: Boolean,
+  default: true,
+},
 
     status: {
       type: String,
