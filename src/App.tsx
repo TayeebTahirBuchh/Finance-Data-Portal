@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
 import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
@@ -6,6 +5,7 @@ import CreateAccountForm from "./components/CreateAccountForm";
 import CreateTransactionForm from "./components/CreateTransactionForm";
 import CategoryManager from "./components/CategoryManager";
 import DashboardSummary from "./components/DashboardSummary";
+import BudgetManager from "./components/BudgetManager";
 
 import {
   getCurrentUser,
@@ -405,9 +405,17 @@ export default function App() {
                 </div>
               )}
             </section>
-          {activeWorkspace && (
-  <DashboardSummary balances={accountBalances} />
-)}
+
+            {activeWorkspace && (
+              <>
+                <DashboardSummary balances={accountBalances} />
+
+                <BudgetManager
+                  workspaceId={activeWorkspaceId}
+                  defaultCurrency={activeWorkspace.baseCurrency}
+                />
+              </>
+            )}
 
             {activeWorkspace && (
               <>
