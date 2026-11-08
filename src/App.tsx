@@ -5,6 +5,7 @@ import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
 import CreateAccountForm from "./components/CreateAccountForm";
 import CreateTransactionForm from "./components/CreateTransactionForm";
 import CategoryManager from "./components/CategoryManager";
+import DashboardSummary from "./components/DashboardSummary";
 
 import {
   getCurrentUser,
@@ -404,6 +405,9 @@ export default function App() {
                 </div>
               )}
             </section>
+          {activeWorkspace && (
+  <DashboardSummary balances={accountBalances} />
+)}
 
             {activeWorkspace && (
               <>
