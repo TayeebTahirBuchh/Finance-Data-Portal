@@ -1,5 +1,7 @@
 import Account from "../models/Account.js";
+import Category from "../models/Category.js";
 import Transaction from "../models/Transaction.js";
+
 import type { CreateTransactionInput } from "../validators/transaction.validator.js";
 
 export async function createTransaction(
@@ -18,6 +20,19 @@ export async function createTransaction(
 
   if (account.currency !== input.currency) {
     throw new Error("CURRENCY_MISMATCH");
+  }
+
+  if (input.categoryId) {
+    const category = await Category.findOne({
+      _id: input.categoryId,
+      workspaceId,
+      type: input.type,
+      isArchived: false,
+    }).lean();
+
+    if (!category) {
+      throw new Error("INVALID_CATEGORY");
+    }
   }
 
   const transaction = await Transaction.create({
