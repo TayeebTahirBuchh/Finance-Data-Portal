@@ -43,7 +43,15 @@ export function toMinorUnits(
     throw new Error("Invalid monetary amount");
   }
 
-  const multiplier = getCurrencyMultiplier(currency);
+  const decimals = getCurrencyDecimals(currency);
+  const multiplier = 10 ** decimals;
+
+  if (Number(amount.toFixed(decimals)) !== amount) {
+    throw new Error(
+      `Amount cannot have more than ${decimals} decimal places`
+    );
+  }
+
   const minorUnits = Math.round(amount * multiplier);
 
   if (!Number.isSafeInteger(minorUnits)) {
