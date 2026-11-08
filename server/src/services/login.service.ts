@@ -36,9 +36,7 @@ export async function loginUser(input: LoginInput) {
     throw new LoginError("This account is unavailable", 403);
   }
 
-  if (!user.emailVerified) {
-    throw new LoginError("Please verify your email before logging in", 403);
-  }
+  
 
   return {
     userId: user._id.toString(),
