@@ -48,10 +48,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl,
-      collectionName: "sessions",
-      ttl: 7 * 24 * 60 * 60,
-    }),
+    mongoUrl: mongoUri,
+    collectionName: "sessions",
+    ttl: 7 * 24 * 60 * 60,
+}),
     cookie: {
       httpOnly: true,
       secure: isProduction,
