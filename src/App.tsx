@@ -1,11 +1,13 @@
 
 
 
+
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
 import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
 import CreateAccountForm from "./components/CreateAccountForm";
 import CreateTransactionForm from "./components/CreateTransactionForm";
+import CategoryManager from "./components/CategoryManager";
 
 import {
   getCurrentUser,
@@ -47,6 +49,7 @@ export default function App() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
 
   const [transactionFilter, setTransactionFilter] = useState<
     "ALL" | TransactionType
@@ -222,6 +225,7 @@ export default function App() {
     setShowCreateForm(false);
     setShowAccountForm(false);
     setShowTransactionForm(false);
+    setShowCategoryManager(false);
     setError("");
   }
 
@@ -346,6 +350,7 @@ export default function App() {
                           setActiveWorkspaceId(workspace.id);
                           setShowAccountForm(false);
                           setShowTransactionForm(false);
+                          setShowCategoryManager(false);
                           setTransactionFilter("ALL");
                         }}
                         className={`text-left border rounded-xl p-4 transition ${
@@ -471,6 +476,38 @@ export default function App() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="bg-white rounded-2xl border border-[#E7E5E4] p-6 mb-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-semibold">
+                        Categories
+                      </h2>
+                      <p className="text-sm text-[#78716C] mt-1">
+                        Manage your income and expense categories.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setShowCategoryManager((current) => !current)
+                      }
+                      className="px-4 py-2 rounded-xl bg-[#1C1917] text-white text-sm font-medium"
+                    >
+                      {showCategoryManager
+                        ? "Close"
+                        : "Manage categories"}
+                    </button>
+                  </div>
+
+                  {showCategoryManager && (
+                    <div className="mt-6">
+                      <CategoryManager
+                        workspaceId={activeWorkspaceId}
+                      />
                     </div>
                   )}
                 </section>
