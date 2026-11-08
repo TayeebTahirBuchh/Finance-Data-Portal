@@ -1,8 +1,11 @@
 
+
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -30,7 +33,7 @@ app.use(
   })
 );
 
-// Backend health check
+// Health check
 app.get("/api/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
@@ -39,10 +42,13 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// Handle unknown routes
+// Authentication routes
+app.use("/api/auth", authRoutes);
+
+// Unknown routes
 app.use((_req, res) => {
   res.status(404).json({
-    error: "Route not found"
+    error: "Route not found",
   });
 });
 
