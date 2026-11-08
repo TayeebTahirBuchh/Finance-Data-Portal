@@ -50,6 +50,12 @@ export async function createTransactionController(
       });
       return;
     }
+    if (error instanceof Error && error.message === "INVALID_CATEGORY") {
+  res.status(400).json({
+    error: "Invalid category for this workspace or transaction type",
+  });
+  return;
+}
 
     console.error("Transaction creation error:", error);
 
