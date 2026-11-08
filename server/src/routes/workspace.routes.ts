@@ -3,6 +3,7 @@
 
 import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
+import { archiveAccountController } from "../controllers/archive-account.controller.js";
 import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
 
 
@@ -28,6 +29,12 @@ router.post(
   requireAuth,
   requireWorkspaceAccess,
   createAccountController
+);
+router.patch(
+  "/:workspaceId/accounts/:accountId/archive",
+  requireAuth,
+  requireWorkspaceAccess,
+  archiveAccountController
 );
 router.get(
   "/:workspaceId/accounts",
