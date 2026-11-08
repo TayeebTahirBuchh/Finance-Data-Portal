@@ -1,176 +1,225 @@
 Finance Data Portal
 
-A secure, full-stack finance dashboard with role-based access control (RBAC), transaction management, and real-time financial summaries — built with React, TypeScript, and Express.
+A full-stack personal and business finance management application built with React, TypeScript, Node.js, Express, and MongoDB. It helps users organize financial accounts, track income and expenses, manage budgets and savings goals, and review financial performance through dashboard summaries and reports.
 
+Overview
 
+Finance Data Portal is designed around workspaces, allowing users to keep financial information organized in separate personal or business environments.
 
----
+The application uses a React frontend and a REST API powered by Express and MongoDB. Financial records are associated with their respective workspaces.
 
 Features
 
-- 🔐 **Role-Based Access Control** — Three permission levels: `ADMIN`, `ANALYST`, and `VIEWER`
-- 📊 **Financial Dashboard** — Live summaries of income, expenses, net balance, and category breakdowns
-- 💳 **Transaction Management** — Create, view, filter, and delete financial records
-- 👥 **User Management** — Admin panel to manage users and their roles/statuses
-- ⚡ **Real-time Data** — Instant UI updates after every change
-- 🎨 **Animated UI** — Smooth transitions powered by Framer Motion
-- 🤖 **Gemini AI Integration** — Google Gemini AI backend support for intelligent features
+Dashboard Summary
 
----
- Tech Stack
+* View total income and expenses.
+* Review net cash flow.
+* View account balances.
+* Understand financial activity by currency.
 
-| Layer      | Technology                                      |
-|------------|-------------------------------------------------|
-| Frontend   | React 19, TypeScript, Tailwind CSS v4, Framer Motion |
-| Backend    | Node.js, Express, TypeScript                    |
-| Validation | Zod                                             |
-| Build Tool | Vite                                            |
-| AI         | Google Gemini AI (`@google/genai`)              |
-| Icons      | Lucide React                                    |
+Accounts and Transactions
 
----
+* Create and manage financial accounts.
+* Record income and expense transactions manually.
+* Organize transactions using categories.
+* Keep financial records associated with the selected workspace.
 
-Getting Started
- Prerequisites
+Budgets and Savings Goals
 
-- Node.js 18+
-- A [Google AI Studio](https://aistudio.google.com/) API key for Gemini
+* Create and manage budgets.
+* Track savings goals and contributions.
+* Monitor savings progress.
+* Archive budgets and completed or inactive goals.
 
- Installation
+Charts and Financial Reports
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/Finance-Data-Portal.git
-cd Finance-Data-Portal
+* Review financial summaries for selected date ranges.
+* Compare monthly income and expenses.
+* View expense breakdowns by category.
+* Filter reports by currency.
 
-# Install dependencies
-npm install
+Multi-Currency Support
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
-```
+* Configure a workspace base currency.
+* Store financial records in their original currency.
+* Display reports separately for each currency.
 
- Running the App
+Note: Currency conversion is not currently implemented. Amounts in different currencies are not combined into a single total.
 
-```bash
-# Start the development server (frontend + backend)
-npm run dev
-```
+Authentication and Workspaces
 
-Open your browser at `http://localhost:3000`
+* User registration and login.
+* Password hashing.
+* Server-managed sessions stored in MongoDB.
+* HTTP-only session cookies.
+* Workspace-based access control.
+* Support for personal and business workspace types.
 
- Build for Production
+Technology Stack
 
-```bash
-npm run build
-npm run preview
-```
+Layer	Technologies
+Frontend	React 19, TypeScript
+Styling	Tailwind CSS v4
+Build Tool	Vite
+Backend	Node.js, Express
+Database	MongoDB, Mongoose
+Validation	Zod
+Authentication	bcrypt, express-session, connect-mongo
+Security	Helmet, CORS, express-rate-limit
+Icons and UI	Lucide React, Motion
 
----
+Project Structure
 
- Authentication & Roles
-
-The app uses a mock authentication system via the `X-User-ID` header. Three roles are available:
-
-| Role       | Permissions                                                  |
-|------------|--------------------------------------------------------------|
-| `ADMIN`    | Full access: view/create/delete transactions, manage users   |
-| `ANALYST`  | View transactions, view dashboard summary                    |
-| `VIEWER`   | View transactions only                                       |
-
-**Default users for testing:**
-
-| User ID | Username  | Role     |
-|---------|-----------|----------|
-| `1`     | admin     | ADMIN    |
-| `2`     | analyst   | ANALYST  |
-| `3`     | viewer    | VIEWER   |
-
----
-
- API Endpoints
-
-### Users
-| Method | Endpoint         | Role Required | Description           |
-|--------|-----------------|---------------|-----------------------|
-| GET    | `/api/users`    | ADMIN         | List all users        |
-| POST   | `/api/users`    | ADMIN         | Create a new user     |
-| PATCH  | `/api/users/:id`| ADMIN         | Update a user         |
-
-### Transactions
-| Method | Endpoint               | Role Required | Description              |
-|--------|------------------------|---------------|--------------------------|
-| GET    | `/api/transactions`    | Any           | List/filter transactions |
-| POST   | `/api/transactions`    | ADMIN         | Add a transaction        |
-| DELETE | `/api/transactions/:id`| ADMIN         | Delete a transaction     |
-
-### Dashboard
-| Method | Endpoint       | Role Required       | Description            |
-|--------|---------------|---------------------|------------------------|
-| GET    | `/api/summary` | ADMIN, ANALYST      | Financial summary      |
-
- Transaction Filters (query params)
-```
-GET /api/transactions?type=INCOME&category=Salary&startDate=2024-01-01&endDate=2024-12-31
-```
-
----
-
- Project Structure
-
-```
 Finance-Data-Portal/
 ├── src/
-│   ├── App.tsx          # Main React app (UI, state, API calls)
-│   ├── main.tsx         # React entry point
-│   └── index.css        # Global styles
-├── server.ts            # Express API server + Vite dev middleware
-├── index.html           # HTML entry point
-├── vite.config.ts       # Vite configuration
-├── tsconfig.json        # TypeScript configuration
-├── package.json         # Dependencies and scripts
-└── .env.example         # Environment variable template
-```
+│   ├── components/
+│   │   ├── AuthForm.tsx
+│   │   ├── DashboardSummary.tsx
+│   │   ├── BudgetManager.tsx
+│   │   ├── SavingsGoalManager.tsx
+│   │   └── FinancialReports.tsx
+│   ├── lib/
+│   │   ├── account-api.ts
+│   │   ├── auth-api.ts
+│   │   ├── budget-api.ts
+│   │   ├── category-api.ts
+│   │   ├── financial-report-api.ts
+│   │   ├── savings-goal-api.ts
+│   │   ├── transaction-api.ts
+│   │   └── workspace-api.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+│
+├── server/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   ├── validators/
+│   │   ├── app.ts
+│   │   └── server.ts
+│   ├── .env.example
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── package.json
+├── vite.config.ts
+└── README.md
 
----
+Getting Started
 
- Environment Variables
+Prerequisites
 
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-APP_URL=http://localhost:3000
-```
+* Node.js and npm
+* MongoDB database (local installation or MongoDB Atlas)
+* Git
 
----
+1. Clone the repository
 
- Scripts
+git clone https://github.com/TayeebTahirBuchh/Finance-Data-Portal.git
+cd Finance-Data-Portal
 
-| Script        | Description                          |
-|---------------|--------------------------------------|
-| `npm run dev` | Start development server             |
-| `npm run build` | Build for production               |
-| `npm run preview` | Preview production build         |
-| `npm run lint` | TypeScript type checking            |
-| `npm run clean` | Remove build artifacts             |
+2. Install frontend dependencies
 
----
+npm install
 
-  Language Breakdown
+3. Configure the backend
 
-```
-TypeScript + TSX   ████████████████████████████████  98.3%
-HTML               ▌                                   1.6%
-CSS                ░                                   0.1%
-```
+cd server
+npm install
 
----
+Create a .env file inside the server directory using .env.example as a reference.
 
-  License
+Configure the following variables:
 
-This project is private. All rights reserved.
+PORT=4000
+NODE_ENV=development
+CLIENT_ORIGIN=http://localhost:5173
+MONGODB_URI=your_mongodb_connection_string
+SESSION_SECRET=your_long_random_secret_at_least_32_characters
 
----
+Use your own MongoDB connection string and a secure session secret. Never commit your actual .env file or credentials.
 
-> Built with  using React, TypeScript, and Express
+4. Start the backend
 
+From the server directory:
+
+npm run dev
+
+The API runs on:
+
+http://localhost:4000
+
+Health check:
+
+http://localhost:4000/api/health
+
+5. Start the frontend
+
+Open a second terminal in the project root:
+
+npx vite --host 0.0.0.0
+
+The Vite development server normally runs at:
+
+http://localhost:5173
+
+Configure the frontend API URL according to the API base URL used by the frontend configuration.
+
+Backend Scripts
+
+Run these commands from the server directory.
+
+Command	Description
+npm run dev	Start the backend in development mode
+npm run build	Compile the backend TypeScript
+npm run typecheck	Run backend type checking
+npm start	Start the compiled backend
+
+API Overview
+
+The backend exposes REST API routes under /api.
+
+Route	Purpose
+/api/health	API health check
+/api/auth	Registration, login, logout and session
+/api/workspaces	Workspace-related operations
+/api/workspaces/:workspaceId/financial-reports	Workspace financial reports
+
+Additional workspace routes handle accounts, transactions, categories, budgets, and savings goals.
+
+Data Models
+
+The backend uses MongoDB collections managed through Mongoose models, including:
+
+* User
+* Workspace
+* Membership
+* Account
+* Transaction
+* Category
+* Budget
+* SavingsGoal
+
+Important Notes
+
+* Transactions are entered manually.
+* Different currencies are reported separately.
+* Automatic bank synchronization and currency conversion are not included.
+* A MongoDB connection and valid backend environment variables are required to run the API.
+
+Author
+
+Tayeeb Tahir Buchh
+
+GitHub Profile
+
+
+
+If you find this project useful, feel free to explore the repository and its implementation.
