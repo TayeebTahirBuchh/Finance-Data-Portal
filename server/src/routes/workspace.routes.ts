@@ -13,6 +13,7 @@ import { archiveCategoryController } from "../controllers/archive-category.contr
 import { archiveAccountController } from "../controllers/archive-account.controller.js";
 import { createTransactionController } from "../controllers/create-transaction.controller.js";
 import { getWorkspaceAccountsController } from "../controllers/account-list.controller.js";
+import { financialReportController } from "../controllers/financial-report.controller.js";
 
 import {
   archiveSavingsGoalController,
@@ -165,6 +166,13 @@ router.patch(
 );
 
 router.get(
+  "/:workspaceId/financial-reports",
+  requireAuth,
+  requireWorkspaceAccess,
+  financialReportController
+);
+
+router.get(
   "/:workspaceId",
   requireAuth,
   requireWorkspaceAccess,
@@ -172,4 +180,3 @@ router.get(
 );
 
 export default router;
-
