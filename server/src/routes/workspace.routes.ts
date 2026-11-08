@@ -1,6 +1,6 @@
 
 
-
+import { updateBudgetController } from "../controllers/update-budget.controller.js";
 import { Router } from "express";
 import { createAccountController } from "../controllers/create-account.controller.js";
 import { transactionListController } from "../controllers/transaction-list.controller.js";
@@ -97,6 +97,12 @@ router.patch(
   requireAuth,
   requireWorkspaceAccess,
   archiveBudgetController
+);
+router.patch(
+  "/:workspaceId/budgets/:budgetId",
+  requireAuth,
+  requireWorkspaceAccess,
+  updateBudgetController
 );
 router.get(
   "/:workspaceId",
