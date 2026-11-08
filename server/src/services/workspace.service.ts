@@ -3,8 +3,27 @@ import mongoose from "mongoose";
 
 import Workspace from "../models/Workspace.js";
 import Membership from "../models/Membership.js";
+import Category from "../models/Category.js";
 
 import type { CreateWorkspaceInput } from "../validators/workspace.validator.js";
+
+const DEFAULT_CATEGORIES = [
+  { name: "Salary", type: "INCOME" },
+  { name: "Freelancing", type: "INCOME" },
+  { name: "Business", type: "INCOME" },
+  { name: "Investments", type: "INCOME" },
+  { name: "Other Income", type: "INCOME" },
+
+  { name: "Food", type: "EXPENSE" },
+  { name: "Shopping", type: "EXPENSE" },
+  { name: "Transport", type: "EXPENSE" },
+  { name: "Rent", type: "EXPENSE" },
+  { name: "Bills", type: "EXPENSE" },
+  { name: "Education", type: "EXPENSE" },
+  { name: "Healthcare", type: "EXPENSE" },
+  { name: "Entertainment", type: "EXPENSE" },
+  { name: "Other Expense", type: "EXPENSE" },
+] as const;
 
 export async function createWorkspace(
   userId: string,
@@ -44,6 +63,16 @@ export async function createWorkspace(
             status: "ACTIVE",
           },
         ],
+        { session: dbSession }
+      );
+
+      await Category.insertMany(
+        DEFAULT_CATEGORIES.map((category) => ({
+          workspaceId: workspace._id,
+          name: category.name,
+          type: category.type,
+          isDefault: true,
+        })),
         { session: dbSession }
       );
 
