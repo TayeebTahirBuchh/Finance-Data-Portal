@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AuthForm from "./components/AuthForm";
+import CreateWorkspaceForm from "./components/CreateWorkspaceForm";
 import {
   getCurrentUser,
   logoutUser,
@@ -7,6 +8,7 @@ import {
 } from "./lib/auth-api";
 import {
   getWorkspaces,
+  type Workspace,
   type WorkspaceMembership,
 } from "./lib/workspace-api";
 
@@ -15,6 +17,7 @@ export default function App() {
   const [workspaces, setWorkspaces] = useState<WorkspaceMembership[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   async function loadUserData() {
     try {
@@ -35,6 +38,19 @@ export default function App() {
     void loadUserData();
   }, []);
 
+  async function handleWorkspaceCreated(workspace: Workspace) {
+    try {
+      const memberships = await getWorkspaces();
+      setWorkspaces(memberships);
+      setShowCreateForm(false);
+      setError("");
+    } catch {
+      setError(
+        `Workspace "${workspace.name}" was created, but the list could not be refreshed.`
+      );
+    }
+  }
+
   async function handleLogout() {
     try {
       await logoutUser();
@@ -45,6 +61,7 @@ export default function App() {
 
     setUser(null);
     setWorkspaces([]);
+    setShowCreateForm(false);
     setError("");
   }
 
@@ -60,10 +77,12 @@ export default function App() {
 
   if (!user) {
     return (
-      <AuthForm onAuthenticated={() => {
-        setLoading(true);
-        void loadUserData();
-      }} />
+      <AuthForm
+        onAuthenticated={() => {
+          setLoading(true);
+          void loadUserData();
+        }}
+      />
     );
   }
 
@@ -92,36 +111,52 @@ export default function App() {
           <p className="mb-4 text-sm text-red-600">{error}</p>
         )}
 
-        <section className="bg-white rounded-2xl border border-[#E7E5E4] p-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Your Workspaces
-          </h2>
+        {showCreateForm ? (
+          <CreateWorkspaceForm
+            onCreated={handleWorkspaceCreated}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        ) : (
+          <section className="bg-white rounded-2xl border border-[#E7E5E4] p-6">
+            <div className="flex items-center justify-between gap-3 mb-6">
+              <h2 className="text-lg font-semibold">
+                Your Workspaces
+              </h2>
 
-          {workspaces.length === 0 ? (
-            <p className="text-sm text-[#78716C]">
-              No workspaces found.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {workspaces.map((membership) => (
-                <div
-                  key={membership.workspaceId.id}
-                  className="border border-[#E7E5E4] rounded-xl p-4"
-                >
-                  <h3 className="font-medium">
-                    {membership.workspaceId.name}
-                  </h3>
-
-                  <p className="text-sm text-[#78716C] mt-1">
-                    {membership.workspaceId.type} ·{" "}
-                    {membership.workspaceId.baseCurrency} ·{" "}
-                    {membership.role}
-                  </p>
-                </div>
-              ))}
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="px-4 py-2 rounded-xl bg-[#1C1917] text-white text-sm font-medium"
+              >
+                + Create workspace
+              </button>
             </div>
-          )}
-        </section>
+
+            {workspaces.length === 0 ? (
+              <p className="text-sm text-[#78716C]">
+                No workspaces found. Create your first workspace.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {workspaces.map((membership) => (
+                  <div
+                    key={membership.workspaceId.id}
+                    className="border border-[#E7E5E4] rounded-xl p-4"
+                  >
+                    <h3 className="font-medium">
+                      {membership.workspaceId.name}
+                    </h3>
+
+                    <p className="text-sm text-[#78716C] mt-1">
+                      {membership.workspaceId.type} ·{" "}
+                      {membership.workspaceId.baseCurrency} ·{" "}
+                      {membership.role}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );
